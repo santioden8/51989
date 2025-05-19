@@ -73,3 +73,7 @@ En caso de no ser válida, nos mostrará el error
 
 D) TRADUCCIÓN A JAVASCRIPT
 
+
+![Descripción de la imagen](w9.png)
+
+//Podrán probar cualquiera de los archivos .txt y ver cada uno de los detalles que aclare en los incisos anteriores!
