@@ -1,0 +1,2 @@
+variable precio = @100;  // El símbolo '@' no está definido en tu gramática
+// error sintáctico y léxico

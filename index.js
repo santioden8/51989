@@ -1,46 +1,71 @@
-import CalculatorLexer from "./generated/CalculatorLexer.js";
-import CalculatorParser from "./generated/CalculatorParser.js";
-import { CustomCalculatorListener } from "./CustomCalculatorListener.js";
-import { CustomCalculatorVisitor } from "./CustomCalculatorVisitor.js";
-import antlr4, { CharStreams, CommonTokenStream, ParseTreeWalker } from "antlr4";
-import readline from 'readline';
+import santiLexer from "./generated/santiLexer.js";
+import santiParser from "./generated/santiParser.js";
+import { CustomsantiVisitor } from "./CustomsantiVisitor.js";
+import antlr4 from "antlr4";
 import fs from 'fs';
+import readline from 'readline';
+
+const { CharStreams, CommonTokenStream } = antlr4;
 
 async function main() {
     let input;
 
-    // Intento leer la entrada desde el archivo input - en forma sincrona.
     try {
         input = fs.readFileSync('input.txt', 'utf8');
     } catch (err) {
-        // Si no es posible leer el archivo, solicitar la entrada del usuario por teclado
-        input = await leerCadena(); // Simula lectura síncrona
+        input = await leerCadena();
         console.log(input);
     }
 
-    // Proceso la entrada con el analizador e imprimo el arbol de analisis en formato texto
-    let inputStream = CharStreams.fromString(input);
-    let lexer = new CalculatorLexer(inputStream);
-    let tokenStream = new CommonTokenStream(lexer);
-    let parser = new CalculatorParser(tokenStream);
-    let tree = parser.prog();
-    
-    // Verifico si se produjeron errores
-    if (parser.syntaxErrorsCount > 0) {
+    // Configuración del lexer y token stream
+    const inputStream = CharStreams.fromString(input);
+    const lexer = new santiLexer(inputStream);
+    const tokenStream = new CommonTokenStream(lexer);
+    tokenStream.fill();
+
+    // Mostrar tabla de tokens
+    console.log("\nTabla de Tokens y Lexemas:");
+    console.log("--------------------------------------------------");
+    console.log("| Lexema         | Token                         |");
+    console.log("--------------------------------------------------");
+
+    for (const token of tokenStream.tokens) {
+        if (token.type === -1) break;
+        const tokenName = santiLexer.symbolicNames[token.type] || `UNKNOWN (${token.type})`;
+        console.log(`| ${token.text.padEnd(14)} | ${tokenName.padEnd(30)}|`);
+    }
+    console.log("--------------------------------------------------");
+
+    // Configuración del parser
+    const parser = new santiParser(tokenStream);
+    const tree = parser.programa();
+
+    // Verificación de errores
+    if (parser._syntaxErrors > 0) {
         console.error("\nSe encontraron errores de sintaxis en la entrada.");
-    } 
-    else {
+    } else {
         console.log("\nEntrada válida.");
-        const cadena_tree = tree.toStringTree(parser.ruleNames);
-        console.log(`Árbol de derivación: ${cadena_tree}`);
-
-        // Utilizo un listener y un walker para recorrer el arbol e indicar cada vez que reconoce una sentencia (stat)
-        //const listener = new CustomCalculatorListener();
-        // ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-        // Utilizo un visitor para visitar los nodos que me interesan de mi arbol
-        const visitor = new CustomCalculatorVisitor();
-        visitor.visit(tree);   
+        console.log(`Árbol de derivación: ${tree.toStringTree(parser.ruleNames)}`);
+        
+        // Ejecución con el visitor
+        const visitor = new CustomsantiVisitor();
+        visitor.visit(tree);
+        
+        // Mostrar resultados
+        console.log("\nResultados de la ejecución:");
+        console.log("----------------------------------------");
+        console.log("Variables globales:");
+        for (const [key, value] of visitor.memory) {
+            console.log(`${key} = ${value} (${typeof value})`);
+        }
+        
+        if (visitor.output.length > 0) {
+            console.log("\nSalidas de 'imprimir':");
+            visitor.output.forEach((out, i) => {
+                console.log(`[${i+1}] ${out}`);
+            });
+        }
+        console.log("----------------------------------------");
     }
 }
 
@@ -58,5 +83,4 @@ function leerCadena() {
     });
 }
 
-// Ejecuta la función principal
 main();

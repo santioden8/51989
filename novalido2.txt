@@ -1,0 +1,2 @@
+variable x = "hola"  // Falta el punto y coma ';'
+imprimir(x) //error sintáctico

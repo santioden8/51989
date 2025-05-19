@@ -1,0 +1,21 @@
+variable saludo = "Hola";
+variable nombre = "Mundo";
+variable espacio;
+variable espacio = " ";
+mensaje = saludo + espacio;
+mensaje = mensaje + nombre;
+
+mayus = mayusculas(mensaje);
+minus = minusculas(mensaje);
+len = longitud(mensaje);
+inv = invertir(mensaje);
+rep = reemplazar(mensaje);
+
+imprimir(mensaje);
+imprimir(mayus);
+imprimir(minus);
+imprimir(len);
+imprimir(inv);
+imprimir(rep);
+
+devolver mensaje;
